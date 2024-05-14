@@ -5,30 +5,39 @@ import '../../constants/constants_color.dart';
 class MyIconButton extends StatelessWidget {
   const MyIconButton({
     super.key,
+    this.icon,
+    this.widget,
     required this.onPressed,
-    this.splashRadius = 20,
-    this.iconSize,
     this.color = colorTheme,
+    this.iconSize,
+    this.splashRadius = 20,
     this.tooltip,
-    required this.icon,
+    this.isDisabled = false,
   });
 
-  final Function() onPressed;
-  final double splashRadius;
-  final double? iconSize;
+  final IconData? icon;
+  final Widget? widget;
+  final Function()? onPressed;
   final Color color;
+  final double? iconSize;
+  final double splashRadius;
   final String? tooltip;
-  final IconData icon;
+  final bool isDisabled;
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: onPressed,
+      onPressed: isDisabled ? null : onPressed,
       splashRadius: splashRadius,
-      iconSize: iconSize,
-      color: color,
-      tooltip: tooltip,
-      icon: Icon(icon),
+      splashColor: color.withOpacity(0.2),
+      highlightColor: color.withOpacity(0.2),
+      tooltip: isDisabled ? null : tooltip,
+      icon: widget ??
+          Icon(
+            icon,
+            color: isDisabled ? Colors.grey : color,
+            size: iconSize,
+          ),
     );
   }
 }

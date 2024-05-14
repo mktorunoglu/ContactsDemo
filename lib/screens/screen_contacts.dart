@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../components/buttons/button_icon.dart';
+import '../components/buttons/button_text.dart';
 import '../components/container.dart';
 import '../components/material.dart';
 import '../components/texts/text.dart';
@@ -47,7 +48,7 @@ class ContactsScreen extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               padding: const EdgeInsets.only(left: 10),
               borderRadius: 15,
-              color: Colors.white,
+              backgroundColor: Colors.white,
               child: Row(
                 children: [
                   Expanded(
@@ -111,13 +112,11 @@ class ContactsScreen extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                               textAlign: TextAlign.center,
                             ),
+                            const SizedBox(height: 5),
                             Center(
-                              child: TextButton(
+                              child: MyTextButton(
+                                "Create New Contact",
                                 onPressed: () {},
-                                child: const MyText(
-                                  "Create New Contact",
-                                  fontWeight: FontWeight.w600,
-                                ),
                               ),
                             ),
                           ],
