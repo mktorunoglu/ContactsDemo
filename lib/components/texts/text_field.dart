@@ -31,6 +31,8 @@ class MyTextField extends StatefulWidget {
     this.suffixIcon,
     this.clearIconTooltip = "Clear",
     this.unfocusOnClear = false,
+    this.borderColor,
+    this.backgroundColor = Colors.white,
   });
 
   final TextEditingController? controller;
@@ -52,6 +54,8 @@ class MyTextField extends StatefulWidget {
   final IconData clearIcon;
   final String clearIconTooltip;
   final bool unfocusOnClear;
+  final Color? borderColor;
+  final Color backgroundColor;
 
   @override
   State<MyTextField> createState() => _MyTextFieldState();
@@ -100,7 +104,8 @@ class _MyTextFieldState extends State<MyTextField> {
   Widget build(BuildContext context) {
     return MyContainer(
       margin: widget.margin,
-      backgroundColor: Colors.white,
+      borderColor: widget.borderColor,
+      backgroundColor: widget.backgroundColor,
       child: Row(
         children: [
           if (widget.prefixIcon != null)

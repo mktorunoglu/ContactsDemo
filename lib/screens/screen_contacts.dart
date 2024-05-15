@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../components/bottomsheets/bottom_sheet_contact.dart';
 import '../components/buttons/button_icon.dart';
 import '../components/buttons/button_text.dart';
 import '../components/texts/text.dart';
 import '../components/texts/text_field.dart';
 import '../components/views/view_list.dart';
 import '../constants/constants_color.dart';
+import '../extensions/extension_context.dart';
+import '../helpers/helper_dialog.dart';
 import '../models/model_account.dart';
 
 class ContactsScreen extends StatelessWidget {
@@ -31,9 +34,10 @@ class ContactsScreen extends StatelessWidget {
                     "Contacts",
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   MyIconButton(
-                    onPressed: () {},
+                    onPressed: showCreateContactBottomSheet,
                     iconSize: 30,
                     tooltip: "Create New Contact",
                     icon: Icons.add_circle,
@@ -57,9 +61,9 @@ class ContactsScreen extends StatelessWidget {
                         child: MyListView(
                           shrinkWrap: true,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.account_circle,
-                              size: 80,
+                              size: context.myWidth(0.2),
                               color: colorGrey,
                             ),
                             const Padding(
@@ -81,7 +85,7 @@ class ContactsScreen extends StatelessWidget {
                             Center(
                               child: MyTextButton(
                                 "Create New Contact",
-                                onPressed: () {},
+                                onPressed: showCreateContactBottomSheet,
                               ),
                             ),
                           ],
@@ -95,4 +99,8 @@ class ContactsScreen extends StatelessWidget {
       ),
     );
   }
+
+  void showCreateContactBottomSheet() => DialogHelper.instance.showBottomSheet(
+        const ContactBottomSheet(),
+      );
 }
