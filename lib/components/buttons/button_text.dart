@@ -54,7 +54,7 @@ class MyTextButton extends StatelessWidget {
     final bool isDisabled = this.isDisabled ||
         (onPressed == null && onLongPress == null) ||
         inProgress;
-    final Color color = isDisabled ? Colors.grey : (this.color ?? colorTheme);
+    final Color color = isDisabled ? colorGrey : (this.color ?? colorTheme);
 
     return MyButton(
       padding: padding,

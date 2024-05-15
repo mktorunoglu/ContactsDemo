@@ -35,7 +35,7 @@ class MyIconButton extends StatelessWidget {
       icon: widget ??
           Icon(
             icon,
-            color: isDisabled ? Colors.grey : color,
+            color: isDisabled ? colorGrey : color,
             size: iconSize,
           ),
     );

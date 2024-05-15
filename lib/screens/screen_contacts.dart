@@ -3,9 +3,8 @@ import 'package:get/get.dart';
 
 import '../components/buttons/button_icon.dart';
 import '../components/buttons/button_text.dart';
-import '../components/container.dart';
-import '../components/material.dart';
 import '../components/texts/text.dart';
+import '../components/texts/text_field.dart';
 import '../components/views/view_list.dart';
 import '../constants/constants_color.dart';
 import '../models/model_account.dart';
@@ -13,8 +12,6 @@ import '../models/model_account.dart';
 class ContactsScreen extends StatelessWidget {
   ContactsScreen({super.key});
 
-  final TextEditingController searchTec = TextEditingController();
-  final FocusNode searchFocusNode = FocusNode();
   final RxString searchText = "".obs;
   final RxList<ContactModel> contactList = <ContactModel>[].obs;
 
@@ -44,45 +41,13 @@ class ContactsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            MyContainer(
+            MyTextField(
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              padding: const EdgeInsets.only(left: 10),
-              borderRadius: 15,
-              backgroundColor: Colors.white,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: searchTec,
-                      focusNode: searchFocusNode,
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        icon: Icon(
-                          Icons.search_outlined,
-                          color: colorGrey,
-                        ),
-                        hintText: "Search by name",
-                        hintStyle: TextStyle(color: colorGrey),
-                      ),
-                      onChanged: (value) => searchText.value = value,
-                    ),
-                  ),
-                  Obx(() => searchText.value.isEmpty
-                      ? const SizedBox.shrink()
-                      : MyMaterial(
-                          child: MyIconButton(
-                            onPressed: () {
-                              searchText.value = "";
-                              searchTec.clear();
-                              searchFocusNode.unfocus();
-                            },
-                            tooltip: "Clear",
-                            icon: Icons.cancel_outlined,
-                          ),
-                        )),
-                ],
-              ),
+              textCapitalization: TextCapitalization.sentences,
+              prefixIcon: Icons.search_outlined,
+              hintText: "Search by name",
+              unfocusOnClear: true,
+              onChanged: (value) => searchText.value = value,
             ),
             Expanded(
               child: Obx(() => contactList.isEmpty
