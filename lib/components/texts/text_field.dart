@@ -33,6 +33,7 @@ class MyTextField extends StatefulWidget {
     this.unfocusOnClear = false,
     this.borderColor,
     this.backgroundColor = Colors.white,
+    this.hintColor = colorGrey,
   });
 
   final TextEditingController? controller;
@@ -56,6 +57,7 @@ class MyTextField extends StatefulWidget {
   final bool unfocusOnClear;
   final Color? borderColor;
   final Color backgroundColor;
+  final Color hintColor;
 
   @override
   State<MyTextField> createState() => _MyTextFieldState();
@@ -141,7 +143,7 @@ class _MyTextFieldState extends State<MyTextField> {
                       labelStyle: TextStyle(
                         color: isTyped.value ? colorTheme : colorGrey,
                       ),
-                      hintStyle: const TextStyle(color: colorGrey),
+                      hintStyle: TextStyle(color: widget.hintColor),
                     ),
                     onChanged: (text) {
                       isTyped.value = text.isNotEmpty;

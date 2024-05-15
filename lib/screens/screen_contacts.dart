@@ -26,7 +26,7 @@ class ContactsScreen extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 10, 0),
+              padding: context.dynamicPadding(left: 20, top: 20, right: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -46,7 +46,7 @@ class ContactsScreen extends StatelessWidget {
               ),
             ),
             MyTextField(
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              margin: context.dynamicPadding(horizontal: 20, vertical: 10),
               textCapitalization: TextCapitalization.sentences,
               prefixIcon: Icons.search_outlined,
               hintText: "Search by name",
@@ -57,13 +57,14 @@ class ContactsScreen extends StatelessWidget {
               child: Obx(() => contactList.isEmpty
                   ? Center(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: context.dynamicPadding(horizontal: 20),
                         child: MyListView(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
                           shrinkWrap: true,
                           children: [
                             Icon(
                               Icons.account_circle,
-                              size: context.myWidth(0.2),
+                              size: context.dynamicWidth(0.2),
                               color: colorGrey,
                             ),
                             const Padding(
@@ -101,6 +102,6 @@ class ContactsScreen extends StatelessWidget {
   }
 
   void showCreateContactBottomSheet() => DialogHelper.instance.showBottomSheet(
-        const ContactBottomSheet(),
+        ContactBottomSheet(contactList: contactList),
       );
 }

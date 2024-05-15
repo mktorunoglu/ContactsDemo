@@ -26,6 +26,9 @@ class MyTextButton extends StatelessWidget {
     this.isDisabled = false,
     this.showBorder = false,
     this.showBackgroundColor = false,
+    this.iconSize = 20,
+    this.backgroundColor,
+    this.borderColor,
   });
 
   final EdgeInsetsGeometry padding;
@@ -47,6 +50,9 @@ class MyTextButton extends StatelessWidget {
   final bool isDisabled;
   final bool showBorder;
   final bool showBackgroundColor;
+  final double iconSize;
+  final Color? backgroundColor;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +66,11 @@ class MyTextButton extends StatelessWidget {
       padding: padding,
       shape: shape,
       borderRadius: borderRadius,
-      borderColor: showBorder ? color : null,
+      borderColor: showBorder ? (borderColor ?? color) : null,
       borderWidth: borderWidth,
-      backgroundColor: showBackgroundColor ? color.withOpacity(0.1) : null,
+      backgroundColor: showBackgroundColor
+          ? (backgroundColor ?? color).withOpacity(0.1)
+          : null,
       foregroundColor: color,
       onPressed: isDisabled ? null : onPressed,
       onLongPress: isDisabled ? null : onLongPress,
@@ -81,7 +89,7 @@ class MyTextButton extends StatelessWidget {
                     )
                   : Icon(
                       icon,
-                      size: 20,
+                      size: iconSize,
                       color: color,
                     ),
             ),

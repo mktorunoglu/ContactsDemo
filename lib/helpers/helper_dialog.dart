@@ -5,9 +5,14 @@ class DialogHelper {
   DialogHelper._init();
   static final DialogHelper instance = DialogHelper._init();
 
-  void showBottomSheet(Widget bottomSheet) => Get.bottomSheet(
+  void showBottomSheet(
+    Widget bottomSheet, {
+    bool isScrollControlled = true,
+    bool ignoreSafeArea = false,
+  }) =>
+      Get.bottomSheet(
         SafeArea(child: bottomSheet),
-        isScrollControlled: true,
-        ignoreSafeArea: false,
+        isScrollControlled: isScrollControlled,
+        ignoreSafeArea: ignoreSafeArea,
       );
 }

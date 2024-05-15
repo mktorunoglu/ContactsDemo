@@ -3,14 +3,30 @@ import 'package:get/get.dart';
 
 import '../../constants/constants_color.dart';
 import '../../extensions/extension_context.dart';
+import '../../helpers/helper_dialog.dart';
+import '../../models/model_account.dart';
 import '../buttons/button_text.dart';
 import '../texts/text.dart';
 import '../texts/text_field.dart';
 import '../views/view_list.dart';
 import 'bottom_sheet.dart';
+import 'bottom_sheet_picker_image.dart';
 
 class ContactBottomSheet extends StatelessWidget {
-  const ContactBottomSheet({super.key});
+  ContactBottomSheet({
+    super.key,
+    required this.contactList,
+  });
+
+  final RxList<ContactModel> contactList;
+
+  final RxString firstName = "".obs;
+  final RxString lastName = "".obs;
+  final RxString phone = "".obs;
+  final RxBool inProgress = false.obs;
+
+  bool get isDone =>
+      firstName.isNotEmpty && lastName.isNotEmpty && phone.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +56,11 @@ class ContactBottomSheet extends StatelessWidget {
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: MyTextButton(
-                    "Done",
-                    isDisabled: true,
-                    onPressed: () {},
-                  ),
+                  child: Obx(() => MyTextButton(
+                        "Done",
+                        isDisabled: inProgress.value || !isDone,
+                        onPressed: saveContact,
+                      )),
                 ),
               ),
             ],
@@ -56,27 +72,33 @@ class ContactBottomSheet extends StatelessWidget {
                 Icon(
                   Icons.account_circle,
                   color: colorGrey,
-                  size: context.myWidth(0.5),
+                  size: context.dynamicWidth(0.5),
                 ),
                 Center(
                   child: MyTextButton(
                     "Add Photo",
                     color: Colors.black,
-                    onPressed: () {},
+                    onPressed: () => DialogHelper.instance.showBottomSheet(
+                      const ImagePickerBottomSheet(),
+                      isScrollControlled: false,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
                 textField(
                   hintText: "First name",
                   textCapitalization: TextCapitalization.words,
+                  onChanged: (text) => firstName.value = text,
                 ),
                 textField(
                   hintText: "Last name",
                   textCapitalization: TextCapitalization.words,
+                  onChanged: (text) => lastName.value = text,
                 ),
                 textField(
                   hintText: "Phone number",
                   textInputType: TextInputType.phone,
+                  onChanged: (text) => phone.value = text,
                 ),
                 const SizedBox(height: 20),
               ],
@@ -87,18 +109,27 @@ class ContactBottomSheet extends StatelessWidget {
     );
   }
 
+  Future<void> saveContact() async {
+    inProgress.value = true;
+    await Future.delayed(Duration(seconds: 2));
+    Get.back();
+  }
+
   MyTextField textField({
     required String hintText,
     TextCapitalization textCapitalization = TextCapitalization.none,
     TextInputType textInputType = TextInputType.name,
+    required Function(String text) onChanged,
   }) {
     return MyTextField(
       margin: const EdgeInsets.only(bottom: 20),
       borderColor: Colors.black,
       backgroundColor: colorPage,
       hintText: hintText,
+      hintColor: Colors.grey,
       textCapitalization: textCapitalization,
       textInputType: textInputType,
+      onChanged: onChanged,
     );
   }
 }
