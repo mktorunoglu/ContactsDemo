@@ -7,14 +7,7 @@ class DioHelper {
   DioHelper._init();
   static final DioHelper instance = DioHelper._init();
 
-  final Dio dio = Dio();
-  final Map<String, dynamic> queryParameters = {
-    "skip": 0,
-    "take": 10,
-  };
-  final Options options = Options(
-    headers: {"ApiKey": apiKey},
-  );
+  final Dio dio = Dio()..options.headers.addAll({"ApiKey": apiKey});
 
   Future<ResponseModel> getResponse(Future<Response> function) async {
     try {
@@ -29,41 +22,46 @@ class DioHelper {
     }
   }
 
-  Future<ResponseModel> get(String url) async => await getResponse(
-        dio.get(
-          url,
-          queryParameters: queryParameters,
-          options: options,
-        ),
+  Future<ResponseModel> get(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+  }) async =>
+      await getResponse(
+        dio.get(url, queryParameters: queryParameters),
       );
 
-  Future<ResponseModel> post(String url, {Object? data}) async =>
+  Future<ResponseModel> post(
+    String url, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+  }) async =>
       await getResponse(
-        dio.post(
-          url,
-          data: data,
-          queryParameters: queryParameters,
-          options: options,
-        ),
+        dio.post(url, data: data, queryParameters: queryParameters),
       );
 
-  Future<ResponseModel> put(String url, {Object? data}) async =>
+  Future<ResponseModel> put(
+    String url, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+  }) async =>
       await getResponse(
-        dio.put(
-          url,
-          data: data,
-          queryParameters: queryParameters,
-          options: options,
-        ),
+        dio.put(url, data: data, queryParameters: queryParameters),
       );
 
-  Future<ResponseModel> delete(String url, {Object? data}) async =>
+  Future<ResponseModel> delete(
+    String url, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+  }) async =>
       await getResponse(
-        dio.delete(
-          url,
-          data: data,
-          queryParameters: queryParameters,
-          options: options,
-        ),
+        dio.delete(url, data: data, queryParameters: queryParameters),
       );
+
+  Future<FormData> getFormDataFromImageFilePath(String imageFilePath) async =>
+      FormData.fromMap({
+        "image": await MultipartFile.fromFile(
+          imageFilePath,
+          filename: imageFilePath.split('/').last,
+        ),
+      });
 }

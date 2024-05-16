@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 
 import '../../constants/constants_color.dart';
 import '../../helpers/helper_dialog.dart';
+import '../../helpers/helper_service.dart';
+import '../../models/model_response.dart';
 import '../../models/model_user.dart';
 import '../avatars/avatar_image.dart';
 import '../buttons/button_text.dart';
@@ -24,15 +26,15 @@ class UserBottomSheet extends StatelessWidget {
 
   late final RxString firstName = (user?.firstName ?? "").obs;
   late final RxString lastName = (user?.lastName ?? "").obs;
-  late final RxString phone = (user?.phoneNumber ?? "").obs;
+  late final RxString phoneNumber = (user?.phoneNumber ?? "").obs;
   late final RxString imageUrl = (user?.profileImageUrl ?? "").obs;
-  final RxString imagePath = "".obs;
+  final RxString imageFilePath = "".obs;
   late final RxBool isEdit = (user == null).obs;
   final RxBool inProgress = false.obs;
 
   bool get isDone =>
-      firstName.isNotEmpty && lastName.isNotEmpty && phone.isNotEmpty;
-  bool get isImageSelected => imageUrl.isNotEmpty || imagePath.isNotEmpty;
+      firstName.isNotEmpty && lastName.isNotEmpty && phoneNumber.isNotEmpty;
+  bool get isImageSelected => imageUrl.isNotEmpty || imageFilePath.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +85,7 @@ class UserBottomSheet extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: MyImageAvatar(
                             imageUrl: imageUrl.value,
-                            imagePath: imagePath.value,
+                            imageFilePath: imageFilePath.value,
                             size: 180,
                           ),
                         ),
@@ -102,7 +104,8 @@ class UserBottomSheet extends StatelessWidget {
                           isEdit.value = true;
                           DialogHelper.instance.showBottomSheet(
                             ImagePickerBottomSheet(
-                              onPick: (path) => imagePath.value = path,
+                              onPick: (filePath) =>
+                                  imageFilePath.value = filePath,
                             ),
                             isScrollControlled: false,
                           );
@@ -121,7 +124,7 @@ class UserBottomSheet extends StatelessWidget {
                   textCapitalization: TextCapitalization.words,
                 ),
                 dataItem(
-                  dataController: phone,
+                  dataController: phoneNumber,
                   hintText: "Phone number",
                   textInputType: TextInputType.phone,
                 ),
@@ -147,8 +150,31 @@ class UserBottomSheet extends StatelessWidget {
 
   Future<void> saveUser() async {
     inProgress.value = true;
-    await Future.delayed(Duration(seconds: 2));
-    Get.back();
+    ResponseModel response;
+    if (imageFilePath.isNotEmpty) {
+      response = await ServiceHelper.instance
+          .user()
+          .uploadImage(filePath: imageFilePath.value);
+      if (response.success != true) {
+        inProgress.value = false;
+        Future.delayed(Duration.zero).whenComplete(() => Get.snackbar(
+              "ERROR",
+              response.messages.toString(),
+            ));
+        return;
+      }
+      imageUrl.value = response.data;
+    }
+    //
+    response =
+        await ServiceHelper.instance.user().getAllUsers(skip: 0, take: 0);
+    final UserModel user = UserModel(
+      id: this.user?.id,
+      firstName: firstName.value,
+      lastName: lastName.value,
+      phoneNumber: phoneNumber.value,
+      profileImageUrl: imageUrl.value,
+    );
   }
 
   Future<void> deleteUser() async {

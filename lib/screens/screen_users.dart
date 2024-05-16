@@ -25,7 +25,7 @@ class UsersScreen extends StatelessWidget {
   final RxString searchText = "".obs;
 
   Future<void> getUserList() async => userListResponse.value =
-      await ServiceHelper.instance.user().getAllUsers();
+      await ServiceHelper.instance.user().getAllUsers(skip: 0, take: 10);
 
   @override
   Widget build(BuildContext context) {

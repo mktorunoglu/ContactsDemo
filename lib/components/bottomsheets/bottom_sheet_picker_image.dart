@@ -12,7 +12,7 @@ class ImagePickerBottomSheet extends StatelessWidget {
     required this.onPick,
   });
 
-  final Function(String path) onPick;
+  final Function(String filePath) onPick;
 
   @override
   Widget build(BuildContext context) {

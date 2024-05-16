@@ -8,7 +8,7 @@ class MyImageAvatar extends StatelessWidget {
   const MyImageAvatar({
     super.key,
     this.imageUrl,
-    this.imagePath,
+    this.imageFilePath,
     this.size,
     this.color = colorTheme,
     this.showBorder = false,
@@ -19,7 +19,7 @@ class MyImageAvatar extends StatelessWidget {
   });
 
   final String? imageUrl;
-  final String? imagePath;
+  final String? imageFilePath;
   final double? size;
   final Color color;
   final bool showBorder;
@@ -47,7 +47,7 @@ class MyImageAvatar extends StatelessWidget {
                 )
               : MyImageViewer(
                   url: imageUrl,
-                  path: imagePath,
+                  path: imageFilePath,
                   circleShape: true,
                   indicatorColor: color,
                   placeholderIcon: placeholderIcon,
