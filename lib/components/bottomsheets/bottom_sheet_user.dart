@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../constants/constants_color.dart';
 import '../../helpers/helper_dialog.dart';
 import '../../models/model_user.dart';
+import '../avatars/avatar_image.dart';
 import '../buttons/button_text.dart';
 import '../texts/text.dart';
 import '../texts/text_field.dart';
@@ -21,13 +22,17 @@ class UserBottomSheet extends StatelessWidget {
   final RxList<UserModel> userList;
   final UserModel? user;
 
-  final RxString firstName = "".obs;
-  final RxString lastName = "".obs;
-  final RxString phone = "".obs;
+  late final RxString firstName = (user?.firstName ?? "").obs;
+  late final RxString lastName = (user?.lastName ?? "").obs;
+  late final RxString phone = (user?.phoneNumber ?? "").obs;
+  late final RxString imageUrl = (user?.profileImageUrl ?? "").obs;
+  final RxString imagePath = "".obs;
+  late final RxBool isEdit = (user == null).obs;
   final RxBool inProgress = false.obs;
 
   bool get isDone =>
       firstName.isNotEmpty && lastName.isNotEmpty && phone.isNotEmpty;
+  bool get isImageSelected => imageUrl.isNotEmpty || imagePath.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +46,7 @@ class UserBottomSheet extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: MyTextButton(
                     "Cancel",
+                    fontWeight: FontWeight.normal,
                     onPressed: Get.back,
                   ),
                 ),
@@ -58,9 +64,10 @@ class UserBottomSheet extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Obx(() => MyTextButton(
-                        "Done",
+                        isEdit.value ? "Done" : "Edit",
                         isDisabled: inProgress.value || !isDone,
-                        onPressed: saveUser,
+                        onPressed:
+                            isEdit.value ? saveUser : () => isEdit.value = true,
                       )),
                 ),
               ),
@@ -70,38 +77,65 @@ class UserBottomSheet extends StatelessWidget {
           Expanded(
             child: MyListView(
               children: [
-                const Icon(
-                  Icons.account_circle,
-                  color: colorGrey,
-                  size: 200,
-                ),
+                Obx(() => isImageSelected
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: MyImageAvatar(
+                            imageUrl: imageUrl.value,
+                            imagePath: imagePath.value,
+                            size: 180,
+                          ),
+                        ),
+                      )
+                    : const Icon(
+                        Icons.account_circle,
+                        color: colorGrey,
+                        size: 200,
+                      )),
                 Center(
                   child: Obx(() => MyTextButton(
-                        "Add Photo",
+                        "${isImageSelected ? "Change" : "Add"} Photo",
                         color: Colors.black,
                         isDisabled: inProgress.value,
-                        onPressed: () => DialogHelper.instance.showBottomSheet(
-                          const ImagePickerBottomSheet(),
-                          isScrollControlled: false,
-                        ),
+                        onPressed: () {
+                          isEdit.value = true;
+                          DialogHelper.instance.showBottomSheet(
+                            ImagePickerBottomSheet(
+                              onPick: (path) => imagePath.value = path,
+                            ),
+                            isScrollControlled: false,
+                          );
+                        },
                       )),
                 ),
                 const SizedBox(height: 20),
-                textField(
+                dataItem(
+                  dataController: firstName,
                   hintText: "First name",
                   textCapitalization: TextCapitalization.words,
-                  onChanged: (text) => firstName.value = text,
                 ),
-                textField(
+                dataItem(
+                  dataController: lastName,
                   hintText: "Last name",
                   textCapitalization: TextCapitalization.words,
-                  onChanged: (text) => lastName.value = text,
                 ),
-                textField(
+                dataItem(
+                  dataController: phone,
                   hintText: "Phone number",
                   textInputType: TextInputType.phone,
-                  onChanged: (text) => phone.value = text,
                 ),
+                Obx(() => isEdit.value
+                    ? const SizedBox.shrink()
+                    : Container(
+                        alignment: Alignment.centerLeft,
+                        margin: const EdgeInsets.only(top: 10),
+                        child: MyTextButton(
+                          "Delete Contact",
+                          color: colorRed,
+                          onPressed: deleteUser,
+                        ),
+                      )),
                 const SizedBox(height: 20),
               ],
             ),
@@ -117,22 +151,48 @@ class UserBottomSheet extends StatelessWidget {
     Get.back();
   }
 
-  Obx textField({
+  Future<void> deleteUser() async {
+    inProgress.value = true;
+    await Future.delayed(Duration(seconds: 2));
+    Get.back();
+  }
+
+  Obx dataItem({
+    required RxString dataController,
     required String hintText,
     TextCapitalization textCapitalization = TextCapitalization.none,
     TextInputType textInputType = TextInputType.name,
-    required Function(String text) onChanged,
   }) {
-    return Obx(() => MyTextField(
-          margin: const EdgeInsets.only(bottom: 20),
-          borderColor: Colors.black,
-          backgroundColor: colorPage,
-          hintText: hintText,
-          hintColor: Colors.grey,
-          textCapitalization: textCapitalization,
-          textInputType: textInputType,
-          onChanged: onChanged,
-          readOnly: inProgress.value,
-        ));
+    return Obx(() => isEdit.value
+        ? MyTextField(
+            margin: const EdgeInsets.only(bottom: 20),
+            borderColor: Colors.black,
+            backgroundColor: colorPage,
+            hintText: hintText,
+            hintColor: Colors.grey,
+            textCapitalization: textCapitalization,
+            textInputType: textInputType,
+            initialValue: dataController.value,
+            onChanged: (text) => dataController.value = text,
+            readOnly: inProgress.value,
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(15),
+                child: MyText(
+                  dataController.value,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Divider(
+                height: 0,
+                thickness: 0.5,
+                color: Colors.black,
+              ),
+            ],
+          ));
   }
 }

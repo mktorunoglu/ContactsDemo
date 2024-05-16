@@ -7,22 +7,26 @@ import '../viewers/viewer_image.dart';
 class MyImageAvatar extends StatelessWidget {
   const MyImageAvatar({
     super.key,
-    required this.imageUrl,
+    this.imageUrl,
+    this.imagePath,
     this.size,
     this.color = colorTheme,
     this.showBorder = false,
-    this.placeholderIcon = Icons.person,
+    this.placeholderIcon = Icons.account_circle,
     this.inProgress = false,
     this.onPressed,
+    this.placeholderIconSize,
   });
 
   final String? imageUrl;
+  final String? imagePath;
   final double? size;
   final Color color;
   final bool showBorder;
   final IconData placeholderIcon;
   final bool inProgress;
   final Function()? onPressed;
+  final double? placeholderIconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +47,11 @@ class MyImageAvatar extends StatelessWidget {
                 )
               : MyImageViewer(
                   url: imageUrl,
+                  path: imagePath,
                   circleShape: true,
                   indicatorColor: color,
                   placeholderIcon: placeholderIcon,
+                  placeholderIconSize: placeholderIconSize,
                 ),
         ),
       ),

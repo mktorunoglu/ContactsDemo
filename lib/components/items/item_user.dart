@@ -36,6 +36,7 @@ class UserItem extends StatelessWidget {
             MyImageAvatar(
               imageUrl: user.profileImageUrl,
               size: 40,
+              placeholderIconSize: 40,
             ),
             const SizedBox(width: 15),
             Expanded(

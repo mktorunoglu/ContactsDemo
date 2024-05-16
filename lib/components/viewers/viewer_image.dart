@@ -16,6 +16,7 @@ class MyImageViewer extends StatelessWidget {
     this.indicatorColor,
     this.fit = BoxFit.cover,
     this.placeholderIcon = Icons.image_not_supported,
+    this.placeholderIconSize,
   });
 
   final String? url;
@@ -28,10 +29,11 @@ class MyImageViewer extends StatelessWidget {
   final Color? indicatorColor;
   final BoxFit fit;
   final IconData placeholderIcon;
+  final double? placeholderIconSize;
 
   @override
   Widget build(BuildContext context) {
-    if (path != null) {
+    if ((path ?? "").isNotEmpty) {
       return ExtendedImage.file(
         File(path!),
         height: height,
@@ -69,11 +71,12 @@ class MyImageViewer extends StatelessWidget {
         ),
       }[state.extendedImageLoadState] ??
       SizedBox(
-        height: height,
-        width: width,
+        height: placeholderIconSize != null ? null : height,
+        width: placeholderIconSize != null ? null : width,
         child: Center(
           child: Icon(
             placeholderIcon,
+            size: placeholderIconSize,
             color: Colors.grey,
           ),
         ),
