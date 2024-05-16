@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../constants/constants_color.dart';
 import '../../extensions/extension_context.dart';
 import '../../helpers/helper_dialog.dart';
-import '../../models/model_account.dart';
+import '../../models/model_user.dart';
 import '../buttons/button_text.dart';
 import '../texts/text.dart';
 import '../texts/text_field.dart';
@@ -15,10 +15,10 @@ import 'bottom_sheet_picker_image.dart';
 class ContactBottomSheet extends StatelessWidget {
   ContactBottomSheet({
     super.key,
-    required this.contactList,
+    required this.userList,
   });
 
-  final RxList<ContactModel> contactList;
+  final RxList<UserModel> userList;
 
   final RxString firstName = "".obs;
   final RxString lastName = "".obs;

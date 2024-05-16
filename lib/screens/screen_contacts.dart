@@ -10,13 +10,21 @@ import '../components/views/view_list.dart';
 import '../constants/constants_color.dart';
 import '../extensions/extension_context.dart';
 import '../helpers/helper_dialog.dart';
-import '../models/model_account.dart';
+import '../helpers/helper_service.dart';
+import '../models/model_response.dart';
+import '../models/model_user.dart';
 
 class ContactsScreen extends StatelessWidget {
-  ContactsScreen({super.key});
+  ContactsScreen({super.key}) {
+    getUserList();
+  }
 
+  final Rx<ResponseModel?> userListResponse = (null as ResponseModel?).obs;
+  final RxList<UserModel> userList = <UserModel>[].obs;
   final RxString searchText = "".obs;
-  final RxList<ContactModel> contactList = <ContactModel>[].obs;
+
+  Future<void> getUserList() async => userListResponse.value =
+      await ServiceHelper.instance.user().getAllUsers();
 
   @override
   Widget build(BuildContext context) {
@@ -54,46 +62,79 @@ class ContactsScreen extends StatelessWidget {
               onChanged: (value) => searchText.value = value,
             ),
             Expanded(
-              child: Obx(() => contactList.isEmpty
-                  ? Center(
-                      child: Padding(
-                        padding: context.dynamicPadding(horizontal: 20),
-                        child: MyListView(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          shrinkWrap: true,
-                          children: [
-                            Icon(
-                              Icons.account_circle,
-                              size: context.dynamicWidth(0.2),
-                              color: colorGrey,
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              child: MyText(
-                                "No Contacts",
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            const MyText(
-                              "Contacts you've added will appear here.",
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+              child: Obx(() {
+                if (userListResponse.value == null) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (userListResponse.value!.success == true) {
+                  userList.value = userListResponse.value!.data;
+                } else {
+                  //
+                  Future.delayed(Duration.zero).whenComplete(() => Get.snackbar(
+                        "ERROR",
+                        userListResponse.value!.messages.toString(),
+                      ));
+                }
+                return Obx(() {
+                  if (userList.isEmpty) {
+                    return Center(
+                      child: MyListView(
+                        padding: context.dynamicPadding(all: 20),
+                        shrinkWrap: true,
+                        children: [
+                          Icon(
+                            Icons.account_circle,
+                            size: context.dynamicWidth(0.2),
+                            color: colorGrey,
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: MyText(
+                              "No Contacts",
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 5),
-                            Center(
-                              child: MyTextButton(
-                                "Create New Contact",
-                                onPressed: showCreateContactBottomSheet,
-                              ),
+                          ),
+                          const MyText(
+                            "Contacts you've added will appear here.",
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 5),
+                          Center(
+                            child: MyTextButton(
+                              "Create New Contact",
+                              onPressed: showCreateContactBottomSheet,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    )
-                  : const SizedBox.shrink()),
+                    );
+                  }
+                  return MyListView(
+                    padding: context.dynamicPadding(
+                      horizontal: 20,
+                      vertical: 10,
+                      bottom: 10,
+                    ),
+                    children: userList
+                        .map((user) => ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: MyText(user.id),
+                              subtitle: MyText(user.firstName),
+                              leading: user.profileImageUrl == null
+                                  ? null
+                                  : Image.network(user.profileImageUrl!),
+                              onTap: () {},
+                            ))
+                        .toList(),
+                  );
+                });
+              }),
             ),
           ],
         ),
@@ -102,6 +143,6 @@ class ContactsScreen extends StatelessWidget {
   }
 
   void showCreateContactBottomSheet() => DialogHelper.instance.showBottomSheet(
-        ContactBottomSheet(contactList: contactList),
+        ContactBottomSheet(userList: userList),
       );
 }
