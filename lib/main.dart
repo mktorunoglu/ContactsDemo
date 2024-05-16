@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 
 import 'constants/constants_color.dart';
 import 'controllers/controller_main.dart';
-import 'screens/screen_contacts.dart';
+import 'screens/screen_users.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: colorTheme),
       ),
-      home: ContactsScreen(),
+      home: UsersScreen(),
     );
   }
 }

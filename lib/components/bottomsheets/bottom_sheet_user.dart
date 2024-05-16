@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/constants_color.dart';
-import '../../extensions/extension_context.dart';
 import '../../helpers/helper_dialog.dart';
 import '../../models/model_user.dart';
 import '../buttons/button_text.dart';
@@ -12,13 +11,15 @@ import '../views/view_list.dart';
 import 'bottom_sheet.dart';
 import 'bottom_sheet_picker_image.dart';
 
-class ContactBottomSheet extends StatelessWidget {
-  ContactBottomSheet({
+class UserBottomSheet extends StatelessWidget {
+  UserBottomSheet({
     super.key,
     required this.userList,
+    this.user,
   });
 
   final RxList<UserModel> userList;
+  final UserModel? user;
 
   final RxString firstName = "".obs;
   final RxString lastName = "".obs;
@@ -44,9 +45,9 @@ class ContactBottomSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              const Expanded(
+              Expanded(
                 child: MyText(
-                  "New Contact",
+                  user == null ? "New Contact" : "Profile",
                   textAlign: TextAlign.center,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -59,7 +60,7 @@ class ContactBottomSheet extends StatelessWidget {
                   child: Obx(() => MyTextButton(
                         "Done",
                         isDisabled: inProgress.value || !isDone,
-                        onPressed: saveContact,
+                        onPressed: saveUser,
                       )),
                 ),
               ),
@@ -69,20 +70,21 @@ class ContactBottomSheet extends StatelessWidget {
           Expanded(
             child: MyListView(
               children: [
-                Icon(
+                const Icon(
                   Icons.account_circle,
                   color: colorGrey,
-                  size: context.dynamicWidth(0.5),
+                  size: 200,
                 ),
                 Center(
-                  child: MyTextButton(
-                    "Add Photo",
-                    color: Colors.black,
-                    onPressed: () => DialogHelper.instance.showBottomSheet(
-                      const ImagePickerBottomSheet(),
-                      isScrollControlled: false,
-                    ),
-                  ),
+                  child: Obx(() => MyTextButton(
+                        "Add Photo",
+                        color: Colors.black,
+                        isDisabled: inProgress.value,
+                        onPressed: () => DialogHelper.instance.showBottomSheet(
+                          const ImagePickerBottomSheet(),
+                          isScrollControlled: false,
+                        ),
+                      )),
                 ),
                 const SizedBox(height: 20),
                 textField(
@@ -109,27 +111,28 @@ class ContactBottomSheet extends StatelessWidget {
     );
   }
 
-  Future<void> saveContact() async {
+  Future<void> saveUser() async {
     inProgress.value = true;
     await Future.delayed(Duration(seconds: 2));
     Get.back();
   }
 
-  MyTextField textField({
+  Obx textField({
     required String hintText,
     TextCapitalization textCapitalization = TextCapitalization.none,
     TextInputType textInputType = TextInputType.name,
     required Function(String text) onChanged,
   }) {
-    return MyTextField(
-      margin: const EdgeInsets.only(bottom: 20),
-      borderColor: Colors.black,
-      backgroundColor: colorPage,
-      hintText: hintText,
-      hintColor: Colors.grey,
-      textCapitalization: textCapitalization,
-      textInputType: textInputType,
-      onChanged: onChanged,
-    );
+    return Obx(() => MyTextField(
+          margin: const EdgeInsets.only(bottom: 20),
+          borderColor: Colors.black,
+          backgroundColor: colorPage,
+          hintText: hintText,
+          hintColor: Colors.grey,
+          textCapitalization: textCapitalization,
+          textInputType: textInputType,
+          onChanged: onChanged,
+          readOnly: inProgress.value,
+        ));
   }
 }

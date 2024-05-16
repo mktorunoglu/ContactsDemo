@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../components/bottomsheets/bottom_sheet_contact.dart';
+import '../components/bottomsheets/bottom_sheet_user.dart';
 import '../components/buttons/button_icon.dart';
 import '../components/buttons/button_text.dart';
+import '../components/items/item_user.dart';
 import '../components/texts/text.dart';
 import '../components/texts/text_field.dart';
 import '../components/views/view_list.dart';
@@ -14,8 +15,8 @@ import '../helpers/helper_service.dart';
 import '../models/model_response.dart';
 import '../models/model_user.dart';
 
-class ContactsScreen extends StatelessWidget {
-  ContactsScreen({super.key}) {
+class UsersScreen extends StatelessWidget {
+  UsersScreen({super.key}) {
     getUserList();
   }
 
@@ -45,7 +46,7 @@ class ContactsScreen extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   MyIconButton(
-                    onPressed: showCreateContactBottomSheet,
+                    onPressed: showUserBottomSheet,
                     iconSize: 30,
                     tooltip: "Create New Contact",
                     icon: Icons.add_circle,
@@ -84,9 +85,9 @@ class ContactsScreen extends StatelessWidget {
                         padding: context.dynamicPadding(all: 20),
                         shrinkWrap: true,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.account_circle,
-                            size: context.dynamicWidth(0.2),
+                            size: 80,
                             color: colorGrey,
                           ),
                           const Padding(
@@ -108,28 +109,24 @@ class ContactsScreen extends StatelessWidget {
                           Center(
                             child: MyTextButton(
                               "Create New Contact",
-                              onPressed: showCreateContactBottomSheet,
+                              onPressed: showUserBottomSheet,
                             ),
                           ),
                         ],
                       ),
                     );
                   }
+                  userList.sort((a, b) =>
+                      (b.createdAt ?? "").compareTo(a.createdAt ?? ""));
                   return MyListView(
                     padding: context.dynamicPadding(
                       horizontal: 20,
                       vertical: 10,
-                      bottom: 10,
                     ),
                     children: userList
-                        .map((user) => ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: MyText(user.id),
-                              subtitle: MyText(user.firstName),
-                              leading: user.profileImageUrl == null
-                                  ? null
-                                  : Image.network(user.profileImageUrl!),
-                              onTap: () {},
+                        .map((user) => UserItem(
+                              userList: userList,
+                              user: user,
                             ))
                         .toList(),
                   );
@@ -142,7 +139,7 @@ class ContactsScreen extends StatelessWidget {
     );
   }
 
-  void showCreateContactBottomSheet() => DialogHelper.instance.showBottomSheet(
-        ContactBottomSheet(userList: userList),
+  void showUserBottomSheet() => DialogHelper.instance.showBottomSheet(
+        UserBottomSheet(userList: userList),
       );
 }
