@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../helpers/helper_dialog.dart';
 import '../../models/model_user.dart';
@@ -11,11 +10,9 @@ import '../texts/text.dart';
 class UserItem extends StatelessWidget {
   const UserItem({
     super.key,
-    required this.userList,
     required this.user,
   });
 
-  final RxList<UserModel> userList;
   final UserModel user;
 
   @override
@@ -26,10 +23,7 @@ class UserItem extends StatelessWidget {
         padding: const EdgeInsets.all(15),
         backgroundColor: Colors.white,
         onPressed: () => DialogHelper.instance.showBottomSheet(
-          UserBottomSheet(
-            userList: userList,
-            user: user,
-          ),
+          UserBottomSheet(user: user),
         ),
         child: Row(
           children: [

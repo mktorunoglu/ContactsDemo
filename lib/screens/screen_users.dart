@@ -8,6 +8,7 @@ import '../components/items/item_user.dart';
 import '../components/texts/text.dart';
 import '../components/texts/text_field.dart';
 import '../components/views/view_list.dart';
+import '../constants/constants.dart';
 import '../constants/constants_color.dart';
 import '../extensions/extension_context.dart';
 import '../helpers/helper_dialog.dart';
@@ -25,7 +26,7 @@ class UsersScreen extends StatelessWidget {
   final RxString searchText = "".obs;
 
   Future<void> getUserList() async => userListResponse.value =
-      await ServiceHelper.instance.user().getAllUsers(skip: 0, take: 10);
+      await ServiceHelper.instance.userService().getAllUsers(skip: 0, take: 10);
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +73,13 @@ class UsersScreen extends StatelessWidget {
                 if (userListResponse.value!.success == true) {
                   userList.value = userListResponse.value!.data;
                 } else {
-                  //
-                  Future.delayed(Duration.zero).whenComplete(() => Get.snackbar(
-                        "ERROR",
-                        userListResponse.value!.messages.toString(),
-                      ));
+                  DialogHelper.instance.showSnackbar(
+                    userListResponse.value!.messages.isEmpty
+                        ? defaultErrorMessage
+                        : userListResponse.value!.messages.first,
+                    isUnsuccessful: true,
+                    durationSeconds: 5,
+                  );
                 }
                 return Obx(() {
                   if (userList.isEmpty) {
@@ -123,12 +126,8 @@ class UsersScreen extends StatelessWidget {
                       horizontal: 20,
                       vertical: 10,
                     ),
-                    children: userList
-                        .map((user) => UserItem(
-                              userList: userList,
-                              user: user,
-                            ))
-                        .toList(),
+                    children:
+                        userList.map((user) => UserItem(user: user)).toList(),
                   );
                 });
               }),
@@ -140,6 +139,6 @@ class UsersScreen extends StatelessWidget {
   }
 
   void showUserBottomSheet() => DialogHelper.instance.showBottomSheet(
-        UserBottomSheet(userList: userList),
+        UserBottomSheet(),
       );
 }

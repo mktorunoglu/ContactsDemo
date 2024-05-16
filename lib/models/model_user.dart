@@ -24,12 +24,12 @@ class UserModel {
         profileImageUrl: json["profileImageUrl"],
       );
 
-  Map<String, dynamic> toJson(UserModel user) => {
-        "id": user.id,
-        "createdAt": user.createdAt,
-        "firstName": user.firstName,
-        "lastName": user.lastName,
-        "phoneNumber": user.phoneNumber,
-        "profileImageUrl": user.profileImageUrl,
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "createdAt": createdAt,
+        "firstName": firstName,
+        "lastName": lastName,
+        "phoneNumber": phoneNumber,
+        "profileImageUrl": profileImageUrl,
       };
 }

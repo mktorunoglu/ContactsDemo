@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../constants/constants.dart';
 import '../../constants/constants_color.dart';
 import '../../helpers/helper_dialog.dart';
+import '../../helpers/helper_route.dart';
 import '../../helpers/helper_service.dart';
 import '../../models/model_response.dart';
 import '../../models/model_user.dart';
@@ -12,18 +14,18 @@ import '../texts/text.dart';
 import '../texts/text_field.dart';
 import '../views/view_list.dart';
 import 'bottom_sheet.dart';
+import 'bottom_sheet_action.dart';
 import 'bottom_sheet_picker_image.dart';
 
 class UserBottomSheet extends StatelessWidget {
   UserBottomSheet({
     super.key,
-    required this.userList,
     this.user,
   });
 
-  final RxList<UserModel> userList;
   final UserModel? user;
 
+  late final RxString userId = (user?.id ?? "").obs;
   late final RxString firstName = (user?.firstName ?? "").obs;
   late final RxString lastName = (user?.lastName ?? "").obs;
   late final RxString phoneNumber = (user?.phoneNumber ?? "").obs;
@@ -49,7 +51,7 @@ class UserBottomSheet extends StatelessWidget {
                   child: MyTextButton(
                     "Cancel",
                     fontWeight: FontWeight.normal,
-                    onPressed: Get.back,
+                    onPressed: RouteHelper.instance.getBackAsync,
                   ),
                 ),
               ),
@@ -153,34 +155,65 @@ class UserBottomSheet extends StatelessWidget {
     ResponseModel response;
     if (imageFilePath.isNotEmpty) {
       response = await ServiceHelper.instance
-          .user()
+          .userService()
           .uploadImage(filePath: imageFilePath.value);
       if (response.success != true) {
-        inProgress.value = false;
-        Future.delayed(Duration.zero).whenComplete(() => Get.snackbar(
-              "ERROR",
-              response.messages.toString(),
-            ));
-        return;
+        return showErrorResponse(messages: response.messages);
       }
       imageUrl.value = response.data;
     }
-    //
-    response =
-        await ServiceHelper.instance.user().getAllUsers(skip: 0, take: 0);
     final UserModel user = UserModel(
-      id: this.user?.id,
+      id: userId.value,
       firstName: firstName.value,
       lastName: lastName.value,
       phoneNumber: phoneNumber.value,
-      profileImageUrl: imageUrl.value,
+      profileImageUrl: imageUrl.value.isEmpty ? null : imageUrl.value,
     );
+    if (userId.value.isEmpty) {
+      response = await ServiceHelper.instance.userService().createUser(user);
+    } else {
+      response = await ServiceHelper.instance.userService().updateUser(user);
+    }
+    if (response.success != true) {
+      return showErrorResponse(messages: response.messages);
+    }
+    inProgress.value = false;
+    isEdit.value = false;
+    imageFilePath.value = "";
+    DialogHelper.instance.showSnackbar(
+      userId.value.isEmpty ? "User added!" : "Changes have been applied!",
+      isSuccessful: true,
+    );
+    userId.value = (response.data as UserModel).id ?? "";
   }
 
-  Future<void> deleteUser() async {
-    inProgress.value = true;
-    await Future.delayed(Duration(seconds: 2));
-    Get.back();
+  void deleteUser() => DialogHelper.instance.showBottomSheet(
+        ActionBottomSheet(
+          message: "Delete Account?",
+          confirmButtonFunction: () async {
+            inProgress.value = true;
+            final ResponseModel response = await ServiceHelper.instance
+                .userService()
+                .deleteUserById(user!.id!);
+            if (response.success != true) {
+              return showErrorResponse(messages: response.messages);
+            }
+            await RouteHelper.instance.getBackAsync();
+            DialogHelper.instance.showSnackbar(
+              "Account deleted!",
+              isSuccessful: true,
+            );
+          },
+        ),
+      );
+
+  void showErrorResponse({required List<String> messages}) {
+    inProgress.value = false;
+    DialogHelper.instance.showSnackbar(
+      messages.isEmpty ? defaultErrorMessage : messages.first,
+      isUnsuccessful: true,
+      durationSeconds: 5,
+    );
   }
 
   Obx dataItem({

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../constants/constants_color.dart';
 import '../../helpers/helper_picker_image.dart';
-import '../buttons/button_text.dart';
+import '../buttons/button_dialog.dart';
 import 'bottom_sheet.dart';
 
 class ImagePickerBottomSheet extends StatelessWidget {
@@ -22,57 +21,26 @@ class ImagePickerBottomSheet extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            textButton(
+            DialogButton(
               "Camera",
               icon: Icons.camera_alt_outlined,
               onPressed: () async => onPick(
                 await ImagePickerHelper.instance.pickImageFromCamera() ?? "",
               ),
             ),
-            textButton(
+            DialogButton(
               "Gallery",
               icon: Icons.image_outlined,
               onPressed: () async => onPick(
                 await ImagePickerHelper.instance.pickImageFromGallery() ?? "",
               ),
             ),
-            textButton(
+            const DialogButton(
               "Cancel",
               color: colorTheme,
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Container textButton(
-    String text, {
-    Color color = Colors.black,
-    IconData? icon,
-    Function()? onPressed,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      width: double.infinity,
-      child: MyTextButton(
-        text,
-        padding: const EdgeInsets.all(12),
-        color: color,
-        icon: icon,
-        showBackgroundColor: true,
-        showBorder: true,
-        backgroundColor: Colors.grey.shade500,
-        borderColor: Colors.grey.shade300,
-        fontSize: 20,
-        fontWeight: FontWeight.w500,
-        iconSize: 24,
-        onPressed: () {
-          if (onPressed != null) {
-            onPressed();
-          }
-          Get.back();
-        },
       ),
     );
   }
