@@ -6,9 +6,17 @@ class ImagePickerHelper {
 
   final ImagePicker imagePicker = ImagePicker();
 
-  Future<String?> pickImageFromCamera() async =>
-      (await imagePicker.pickImage(source: ImageSource.camera))?.path;
+  Future<String?> pickImageFromCamera({int imageQuality = 50}) async =>
+      (await imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: imageQuality,
+      ))
+          ?.path;
 
-  Future<String?> pickImageFromGallery() async =>
-      (await imagePicker.pickImage(source: ImageSource.gallery))?.path;
+  Future<String?> pickImageFromGallery({int imageQuality = 50}) async =>
+      (await imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: imageQuality,
+      ))
+          ?.path;
 }
