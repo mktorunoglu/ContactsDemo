@@ -5,7 +5,7 @@ import '../../constants/constants_color.dart';
 class MyIconButton extends StatelessWidget {
   const MyIconButton({
     super.key,
-    this.icon,
+    required this.icon,
     this.widget,
     required this.onPressed,
     this.color = colorTheme,

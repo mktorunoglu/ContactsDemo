@@ -20,9 +20,11 @@ import 'bottom_sheet_picker_image.dart';
 class UserBottomSheet extends StatelessWidget {
   UserBottomSheet({
     super.key,
+    required this.loadUserListFunction,
     this.user,
   });
 
+  final Function() loadUserListFunction;
   final UserModel? user;
 
   late final RxString userId = (user?.id ?? "").obs;
@@ -185,6 +187,7 @@ class UserBottomSheet extends StatelessWidget {
       isSuccessful: true,
     );
     userId.value = (response.data as UserModel).id ?? "";
+    loadUserListFunction();
   }
 
   void deleteUser() => DialogHelper.instance.showBottomSheet(
@@ -203,6 +206,7 @@ class UserBottomSheet extends StatelessWidget {
               "Account deleted!",
               isSuccessful: true,
             );
+            loadUserListFunction();
           },
         ),
       );

@@ -10,9 +10,11 @@ import '../texts/text.dart';
 class UserItem extends StatelessWidget {
   const UserItem({
     super.key,
+    required this.loadUserListFunction,
     required this.user,
   });
 
+  final Function() loadUserListFunction;
   final UserModel user;
 
   @override
@@ -23,7 +25,10 @@ class UserItem extends StatelessWidget {
         padding: const EdgeInsets.all(15),
         backgroundColor: Colors.white,
         onPressed: () => DialogHelper.instance.showBottomSheet(
-          UserBottomSheet(user: user),
+          UserBottomSheet(
+            loadUserListFunction: loadUserListFunction,
+            user: user,
+          ),
         ),
         child: Row(
           children: [

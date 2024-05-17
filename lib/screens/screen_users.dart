@@ -18,15 +18,21 @@ import '../models/model_user.dart';
 
 class UsersScreen extends StatelessWidget {
   UsersScreen({super.key}) {
-    getUserList();
+    loadUserList();
   }
 
   final Rx<ResponseModel?> userListResponse = (null as ResponseModel?).obs;
   final RxList<UserModel> userList = <UserModel>[].obs;
+  final int userItemCount = 15;
+  late final RxInt userItemCounter = userItemCount.obs;
   final RxString searchText = "".obs;
 
-  Future<void> getUserList() async => userListResponse.value =
-      await ServiceHelper.instance.userService().getAllUsers(skip: 0, take: 10);
+  Future<void> loadUserList() async => userListResponse.value =
+      await ServiceHelper.instance.userService().getAllUsers(
+            skip: 0,
+            take: userItemCounter.value,
+            search: searchText.value,
+          );
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +67,11 @@ class UsersScreen extends StatelessWidget {
               prefixIcon: Icons.search_outlined,
               hintText: "Search by name",
               unfocusOnClear: true,
-              onChanged: (value) => searchText.value = value,
+              onChanged: (value) async {
+                searchText.value = value;
+                userItemCounter.value = userItemCount;
+                await loadUserList();
+              },
             ),
             Expanded(
               child: Obx(() {
@@ -73,13 +83,7 @@ class UsersScreen extends StatelessWidget {
                 if (userListResponse.value!.success == true) {
                   userList.value = userListResponse.value!.data;
                 } else {
-                  DialogHelper.instance.showSnackbar(
-                    userListResponse.value!.messages.isEmpty
-                        ? defaultErrorMessage
-                        : userListResponse.value!.messages.first,
-                    isUnsuccessful: true,
-                    durationSeconds: 5,
-                  );
+                  showErrorResponse(messages: userListResponse.value!.messages);
                 }
                 return Obx(() {
                   if (userList.isEmpty) {
@@ -119,15 +123,36 @@ class UsersScreen extends StatelessWidget {
                       ),
                     );
                   }
-                  userList.sort((a, b) =>
-                      (b.createdAt ?? "").compareTo(a.createdAt ?? ""));
-                  return MyListView(
+                  return ListView.builder(
                     padding: context.dynamicPadding(
                       horizontal: 20,
                       vertical: 10,
                     ),
-                    children:
-                        userList.map((user) => UserItem(user: user)).toList(),
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: userList.length,
+                    itemBuilder: (context, index) {
+                      if (index + 1 == userItemCounter.value) {
+                        userItemCounter.value += userItemCount;
+                        ServiceHelper.instance
+                            .userService()
+                            .getAllUsers(
+                              skip: userItemCounter.value - userItemCount,
+                              take: userItemCount,
+                              search: searchText.value,
+                            )
+                            .then((response) {
+                          if (response.success == true) {
+                            userList.addAll(response.data);
+                          } else {
+                            showErrorResponse(messages: response.messages);
+                          }
+                        });
+                      }
+                      return UserItem(
+                        loadUserListFunction: loadUserList,
+                        user: userList.elementAt(index),
+                      );
+                    },
                   );
                 });
               }),
@@ -138,7 +163,14 @@ class UsersScreen extends StatelessWidget {
     );
   }
 
+  void showErrorResponse({required List<String> messages}) =>
+      DialogHelper.instance.showSnackbar(
+        messages.isEmpty ? defaultErrorMessage : messages.first,
+        isUnsuccessful: true,
+        durationSeconds: 5,
+      );
+
   void showUserBottomSheet() => DialogHelper.instance.showBottomSheet(
-        UserBottomSheet(),
+        UserBottomSheet(loadUserListFunction: loadUserList),
       );
 }
